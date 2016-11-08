@@ -20,46 +20,58 @@ app.get('/', (req, res) => {
 
 app.get('/task2B', (req, res) => {
 
+  let fio = req.query.fullname;
 
-  const fio = req.query.fullname;
-  let complete;
 
-  if(req.query.fullname) {
 
-    let fullfio = fio.split(" ")
-    let [name, middname, surname] = fullfio;
+  function checkFio(str) {
+    let msg;
+    let regex = /\d+/;
+    //let respace = /\s/;
+    let redash = /\_/;
+    var reslash = /\//;
+    let defio;
 
-    if(name.match('/\d+/g')) {
-      complete = "Invalid fullname";
-    } else {п
+    str = str.replace(/\s+/g,' ').trim();
 
-      if (fullfio.length == 3) {
+    str = str.replace(/\S+/g, function(text) {
+      return text.charAt(0).toUpperCase() + text.toLowerCase().slice(1);
+    });
 
-        name = name.charAt(0) || "";
-        middname = middname.charAt(0) || "";
-        surname = surname || "";
-        complete = `${surname} ${name}. ${middname}.`;
 
-      } else if (fullfio.length == 2) {
-        middname = middname || "";
-        name = name.charAt(0) || "";
-        complete = `${middname} ${name}.`;
+    if(str.match(redash) || str.match(reslash)) {
+      return msg = "Invalid fullname";
+    }
 
-      } else if (fullfio.length == 1) {
-        complete = `${name}`
-      } else {
-        complete = "Invalid fullname";
+    defio = str.split(" ") || 0;
+
+
+    if(defio == 0) {
+      return msg = "Invalid fullname";
+    }
+
+    for(const element of defio) {
+      if(element.match(regex)) {
+        return msg = "Invalid fullname";
       }
     }
+    if(defio.length == 3) {
+      let [name, middname, surname] = defio;
+      return msg = `${surname} ${name.charAt(0)}. ${middname.charAt(0)}.`;
+    } else if (defio.length == 2) {
+      let [name, surname] = defio;
+      return msg = `${surname} ${name.charAt(0)}.`;
+    } else if(defio.length == 1) {
+      let [name] = defio;
+      return msg = `${name}`;
+    } else {
+      return msg = "Invalid fullname";
+    }
   }
-  else {
-    complete = "Invalid fullname";
-  }
 
+  let result = checkFio(fio)
+  res.send(result);
 
-  //const cofio = defio[2] + " " + defio[0].charAt(0) + ". " + defio[1].charAt(0)+ ".";
-
-  res.send(complete);
 });
 
 app.listen(3000, () => {
